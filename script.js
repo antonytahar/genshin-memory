@@ -76,3 +76,8 @@ function enJeux(numCarte) {
         }
     }
 }
+
+function rejouer(){
+	alert("Victoire !");
+	location.reload();
+}
