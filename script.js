@@ -1,51 +1,78 @@
+var numCartes = ["beidou", "beidou", "bennett", "bennett", "ganyu", "ganyu", "rosaria", "rosaria","sucrose","sucrose","yaemiko","yaemiko"];
+var etatsCartes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0];
+var cartesTrouve = []; // Etat de la carte
 
-var motifsCartes=[1,1,2,2,3,3,4,4,5,5,6,6];
-var etatsCartes=[0,0,0,0,0,0,0,0,0,0,0,0]; 
-
-function start(){
-    shuffle(motifsCartes);
-    var imgs = document.querySelectorAll("img");
-    imgs.forEach(function(el,i){
-        console.log(i,el);
-        el.addEventListener("click",afficher)
-    })
-
-    for(var i=0;i<imgs.length;i++){
-        imgs[i].noCarte=i; //Ajout de la propriété noCarte à l'objet img
-        imgs[i].onclick=function(){
-            controleJeu(this.num);
-        }                      
+var selectionCarte = document.getElementById("memory").getElementsByTagName("img");
+for (var i = 0; i < selectionCarte.length; i++) {
+    selectionCarte[i].numCarte = i;
+    selectionCarte[i].onclick = function () {
+        //Position dans le tableau
+        enJeux(this.numCarte);
+        console.log(cartesTrouve.length)
     }
 }
 
-function shuffle(array) {
-    var j, x, i;
-    for ( i = array.length -1; i > 0; i--) {
-        j = Math.floor(Math.random() * (i+1));
-        x=array[i];
-        array[i]=array[j];
-        array[j]=x;
-        
+shuffle();  // L'array numCartes à changé de position
+//----------------------------------------------------------------------------------------------------------------------
+// Permet de mélanger les cartes
+function shuffle() {
+    var j, x, k;
+    for (k = numCartes.length - 1; k >= 1; k--) {
+        j = Math.floor(Math.random() * (k + 1));
+        x = numCartes[k];
+        numCartes[k] = numCartes[j];
+        numCartes[j] = x;
     }
-    return array;
-  }
-
-function afficher(event){
-    console.log(event);
-    var num = this.getAttribute("data-num");
-    console.log("num",num);
-
-    switch(etatsCartes[num]){
-		case 0:
-            imgs[num].src="Genshin characters\hiddencardprimo.png";
-			break;
-		case 1:
-            imgs[num].src="carte"+motifsCartes[num]+".png";
-			break;
-		case -1:
-            imgs[num].style.visibility="hidden";
-			break;
-	}
 }
 
-  start();
+// Permet de changer l'état des cartes
+function etatCartes(numCarte) {
+    switch (etatsCartes[numCarte]) {
+        case 0:
+            //Position de base
+            selectionCarte[numCarte].src = "Images/hiddencardprimo.png";
+            break;
+        case 1:
+            //Afficher la carte
+            selectionCarte[numCarte].src = "Images/" + numCartes[numCarte] + ".png";
+            break;
+        case -1:
+            //Cacher la carte
+            selectionCarte[numCarte].style.visibility = "hidden";
+            break;
+    }
+}
+
+// Fontion principale
+function enJeux(numCarte) {
+    //Si on a cliqué que sur une carte
+    if (cartesTrouve.length < 2) {
+        //Pas encore cliqué
+        if (etatsCartes[numCarte] == 0) {
+            etatsCartes[numCarte] = 1;
+            cartesTrouve.push(numCarte);
+            etatCartes(numCarte);
+        } else {
+            console.log("Carte déjà cliquée");
+        }
+        //Si on clique sur deux cartes
+        if (cartesTrouve.length == 2) {
+            var nvEtat = 0;
+            if (numCartes[cartesTrouve[0]] == numCartes[cartesTrouve[1]]) {
+                nvEtat = -1;
+                console.log("Cartes identiques");
+            } else {
+                console.log("Cartes différentes");
+            }
+            etatsCartes[cartesTrouve[0]] = nvEtat;
+            etatsCartes[cartesTrouve[1]] = nvEtat;
+
+            setTimeout(function () {
+                etatCartes(cartesTrouve[0]);
+                etatCartes(cartesTrouve[1]);
+                // Vider le tableau
+                cartesTrouve.length = 0;
+            }, 500);
+        }
+    }
+}
